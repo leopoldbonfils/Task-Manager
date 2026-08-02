@@ -1,0 +1,155 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f5f8;
+  color: #222;
+}
+
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+
+.addbox {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.addbox input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.addbox button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #2c50e0;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.addbox button:hover {
+  background: #2440b8;
+}
+
+/* Task list */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.task-id {
+  font-size: 12px;
+  color: #888;
+}
+
+.task-status {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.status-pending {
+  background: #fdf0d5;
+  color: #a3690f;
+}
+
+.status-completed {
+  background: #e0f5e6;
+  color: #1c7c3a;
+}
+
+.status-cancelled {
+  background: #fbe2e2;
+  color: #c72c2c;
+}
+
+.task-name {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.task-name.done {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.task-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.task-buttons button {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.task-buttons .btn-complete {
+  background: #1c7c3a;
+  color: #fff;
+  border-color: #1c7c3a;
+}
+
+.task-buttons .btn-complete:hover {
+  background: #165f2d;
+}
+
+.task-buttons button:hover {
+  background: #f0f0f0;
+}
+
+.btn-delete {
+  color: #c72c2c;
+  border-color: #f0c0c0;
+}
+
+.btn-delete:hover {
+  background: #fbe2e2;
+}
+
+.empty-message {
+  color: #888;
+  font-size: 14px;
+  padding: 20px 0;
+  text-align: center;
+  display: none;
+}

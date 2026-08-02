@@ -1,143 +1,225 @@
-const readline = require('readline');
-const fs = require('fs');
-const task = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-var fileName="task.json";
 var tasks = [];
 var taskIdCounter = 1;
+var storageKey = "tasks";
 
-function loadTasks(){
-    if(fs.existsSync(fileName)){
-        var fileData = fs.readFileSync(fileName,"utf-8");
-        tasks = JSON.parse(fileData);
 
-        for(var i=0;i<tasks.length;i++){
-            if(tasks[i].id >= taskIdCounter){
-                taskIdCounter = tasks[i].id+1;
-         
+function loadTasks() {
+    var savedData = localStorage.getItem(storageKey);
+
+    if (savedData) {
+        tasks = JSON.parse(savedData);
+
+        for (var i = 0; i < tasks.length; i++) {
+            if (tasks[i].id >= taskIdCounter) {
+                taskIdCounter = tasks[i].id + 1;
             }
         }
-        
-            console.log("task loaded successfully from file, total tasks:", tasks.length);
-    }else{
+
+        console.log("task loaded successfully, total tasks:", tasks.length);
+    } else {
         console.log("no task found");
     }
-    
 }
 
-function saveTasks(){
+// Save tasks to localStorage
+function saveTasks() {
     var jsonData = JSON.stringify(tasks, null, 2);
-    fs.writeFileSync(fileName,jsonData,"utf-8");
+    localStorage.setItem(storageKey, jsonData);
 }
 
-function showTaskMenu(){
-    console.log("======Task Manager List:=========")
-    console.log("1. add task")
-    console.log("2. complete task")
-    console.log("3.cancel task")
-    console.log ("4. list all tasks")
-    console.log("5. exit")
+// Add a new task
+function addTask(taskName) {
+    var newTask = {
+        id: taskIdCounter,
+        name: taskName,
+        status: "pending"
+    };
 
-    
-    task.question("enter your choice(1-5):", function(choice){
-        if(choice === "1"){
-            addTask();
-        }else if(choice === "2"){
-            completeTask();
-        }else if(choice === "3"){
-            cancelTask();
-        }else if(choice === "4"){
-            listTasks();
-        }else if(choice === "5"){
-            console.log("==== exiting task manager Bye bye (: ======");
-            task.close();
-        }else{
-            console.log("number is not exiting in the list please enter valid number");
-            showTaskMenu();
-        }
+    taskIdCounter = taskIdCounter + 1;
+    tasks.push(newTask);
+    saveTasks();
 
-    })
+    console.log("task added and saved successfully:", taskName);
+    renderTasks();
 }
 
-function addTask(){
-    task.question("Enter task name:", function(taskName){
-        console.log("task added successfully:", taskName);
-        var newTask ={
-            id:taskIdCounter, 
-            name:taskName,
-            status:"pending"
-        }
-        taskIdCounter = taskIdCounter + 1;
-        tasks.push(newTask);
-        saveTasks();
-        console.log("task saved successfully in file:", taskName);
-        showTaskMenu();
+// Mark a task as completed
+function completeTask(id) {
+    var found = false;
 
-    });
-}
-
-function completeTask(){
-    task.question("Enter task id to finished:", function(taskId){
-        var id= Number(taskId); 
-        var found = false;
-        for(var i=0; i<tasks.length; i++){ 
-            if(tasks[i].id === id){
-                tasks[i].status = "completed";
-                console.log("task completed successfully:", tasks[i].name);
-                found = true;
-                break;
-            }}
-            if(found === false){
-                console.log("task not found with id:", id);
-            }else{
-                saveTasks();
-            }
-            showTaskMenu();
-
-    })
-}
-
-function cancelTask(){
-    
-    task.question("Enter task Id to cancel:", function(taskId){
-        var id = Number(taskId); 
-        var found = false;
-
-        for(var i=0; i<tasks.length; i++){
-            if(tasks[i].id === id){
-                tasks[i].status = "cancelled";
-                console.log("task cancelled successfully:", tasks[i].name);
-                found = true;
-                break;
-            }
-        }
-        if(found === false){
-            console.log("task not found with id:", id);
-        }else{
-            saveTasks();
-        }
-        showTaskMenu();
-    })
-}
-
-function listTasks(){
-    if(tasks.length===0){
-        console.log("no task exist");
-    
-    }else{
-        console.log("======task list=======");
-        for(var i=0;i<tasks.length;i++){
-            console.log("task id:",tasks[i].id,"task name:",tasks[i].name,"task status:",tasks[i].status); 
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === id) {
+            tasks[i].status = "completed";
+            console.log("task completed successfully:", tasks[i].name);
+            found = true;
+            break;
         }
     }
 
-    showTaskMenu(); 
+    if (found === false) {
+        console.log("task not found with id:", id);
+    } else {
+        saveTasks();
+    }
+
+    renderTasks();
+}
+
+// Mark a task as cancelled
+function cancelTask(id) {
+    var found = false;
+
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id === id) {
+            tasks[i].status = "cancelled";
+            console.log("task cancelled successfully:", tasks[i].name);
+            found = true;
+            break;
+        }
+    }
+
+    if (found === false) {
+        console.log("task not found with id:", id);
+    } else {
+        saveTasks();
+    }
+
+    renderTasks();
+}
+
+// Delete a task completely
+function deleteTask(id) {
+    var newTasks = [];
+
+    for (var i = 0; i < tasks.length; i++) {
+        if (tasks[i].id !== id) {
+            newTasks.push(tasks[i]);
+        }
+    }
+
+    tasks = newTasks;
+    saveTasks();
+    renderTasks();
+}
+
+// Draw the task list on the page
+function renderTasks() {
+    var listBox = document.getElementById("taskList");
+    var emptyMessage = document.getElementById("emptyMessage");
+
+    if (!listBox || !emptyMessage) {
+        return;
+    }
+
+    listBox.innerHTML = "";
+
+    if (tasks.length === 0) {
+        emptyMessage.style.display = "block";
+        return;
+    } else {
+        emptyMessage.style.display = "none";
+    }
+
+    for (var i = 0; i < tasks.length; i++) {
+        var t = tasks[i];
+
+        var item = document.createElement("div");
+        item.className = "task-item";
+
+        var topRow = document.createElement("div");
+        topRow.className = "task-top";
+
+        var idSpan = document.createElement("span");
+        idSpan.className = "task-id";
+        idSpan.textContent = t.id;
+
+        var statusClass = "status-pending";
+        if (t.status === "completed") {
+            statusClass = "status-completed";
+        } else if (t.status === "cancelled") {
+            statusClass = "status-cancelled";
+        }
+
+        var statusSpan = document.createElement("span");
+        statusSpan.className = "task-status " + statusClass;
+        statusSpan.textContent = t.status;
+
+        topRow.appendChild(idSpan);
+        topRow.appendChild(statusSpan);
+
+        var nameClass = "task-name";
+        if (t.status === "completed") {
+            nameClass = "task-name done";
+        }
+
+        var nameBox = document.createElement("div");
+        nameBox.className = nameClass;
+        nameBox.textContent = t.name;
+
+        var buttonBox = document.createElement("div");
+        buttonBox.className = "task-buttons";
+
+        if (t.status === "pending") {
+            var completeBtn = document.createElement("button");
+            completeBtn.textContent = "Complete";
+            completeBtn.className = "btn-complete";
+            completeBtn.onclick = (function (id) {
+                return function () { completeTask(id); };
+            })(t.id);
+
+            var cancelBtn = document.createElement("button");
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.className = "btn-cancel";
+            cancelBtn.onclick = (function (id) {
+                return function () { cancelTask(id); };
+            })(t.id);
+
+            buttonBox.appendChild(completeBtn);
+            buttonBox.appendChild(cancelBtn);
+        }
+
+        var deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "btn-delete";
+        deleteBtn.onclick = (function (id) {
+            return function () { deleteTask(id); };
+        })(t.id);
+
+        buttonBox.appendChild(deleteBtn);
+
+        item.appendChild(topRow);
+        item.appendChild(nameBox);
+        item.appendChild(buttonBox);
+        listBox.appendChild(item);
+    }
+}
+
+function init() {
+    var addButton = document.getElementById("addBtn");
+    var input = document.getElementById("taskNameInput");
+
+    if (addButton && input) {
+        addButton.addEventListener("click", function () {
+            var taskName = input.value.trim();
+
+            if (taskName === "") {
+                return;
+            }
+
+            addTask(taskName);
+            input.value = "";
+        });
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                addButton.click();
+            }
+        });
+    }
+
+    loadTasks();
+    renderTasks();
 }
 
 console.log("Welcome to Task Manager");
-loadTasks();
-
-showTaskMenu();
+document.addEventListener("DOMContentLoaded", init);
